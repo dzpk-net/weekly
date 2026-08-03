@@ -1,0 +1,3 @@
+# 周报由 Linux runner 生成(LF),而仓库也会在 Windows 上检出。不锁死换行的话,
+# 本地改一次文件就会把 CRLF 提交进来,下一周 runner 重写成 LF,diff 里整个文件全变。
+* text=auto eol=lf

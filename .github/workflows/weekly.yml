@@ -1,0 +1,48 @@
+name: weekly
+
+# 每周一 09:00(北京)生成上一周的内容摘选。
+# 工作流跑在本仓库里,用自带的 GITHUB_TOKEN 提交,不需要任何密钥:数据来自 dzpk.net
+# 的公开端点 /weekly.json。
+on:
+  schedule:
+    - cron: '0 1 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      # action 锁到 commit SHA:版本标签可以被上游改指到别处,而这个 job 有 contents: write。
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+
+      - id: build
+        run: node scripts/build-weekly.mjs
+
+      # 上游数据异常时生成脚本会直接跳过、什么都不写,所以这里必须先看有没有改动,
+      # 否则每周都会推一个空提交。周编号取脚本给的那个:工作流在周一跑,`date` 此刻
+      # 给的已经是新的一周,而这一期覆盖的是刚过去的七天。
+      - name: Commit
+        env:
+          LABEL: ${{ steps.build.outputs.label }}
+        run: |
+          if [ -z "$(git status --porcelain)" ]; then
+            echo "没有新内容,跳过提交"
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git commit -m "chore: 周报 ${LABEL}"
+          git push

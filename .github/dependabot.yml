@@ -1,0 +1,12 @@
+version: 2
+
+# 工作流里的 action 都锁到了 commit SHA(理由见 weekly.yml 的注释),锁死之后就没人推动升级了。
+# 交给 Dependabot 提 PR:第一次跑就已经在警告 checkout / setup-node 还在 target Node 20。
+# 这个仓库没有 npm 依赖,生成脚本只用 Node 内置模块,所以只配 github-actions。
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    labels:
+      - dependencies
