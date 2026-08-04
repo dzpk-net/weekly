@@ -41,8 +41,8 @@ jobs:
             echo "没有新内容,跳过提交"
             exit 0
           fi
-          git config user.name 'github-actions[bot]'
-          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git config user.name 'dzpk-net'
+          git config user.email '312671510+dzpk-net@users.noreply.github.com'
           git add -A
           git commit -m "chore: 周报 ${LABEL}"
           git push
